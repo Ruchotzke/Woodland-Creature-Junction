@@ -34,25 +34,23 @@ public class TerrainMesh : MonoBehaviour
                 new Vector3(cell.Position.x - TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y - TerrainSettings.CellFaceOffset),
                 new Vector3(cell.Position.x + TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y - TerrainSettings.CellFaceOffset),
                 new Vector3(cell.Position.x + TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y + TerrainSettings.CellFaceOffset),
-                new Vector3(cell.Position.x - TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y + TerrainSettings.CellFaceOffset));
+                new Vector3(cell.Position.x - TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y + TerrainSettings.CellFaceOffset),
+                cell.Color, cell.Color, cell.Color, cell.Color);
 
             /* Each Cell is also responsible for bridging to it's +x and +z neighbors */
             if(cell.Position.x < map.Size.x - 1)
             {
-                var points = GenerateBridgeX(cell);
-                mesher.AddQuad(points.a, points.b, points.c, points.d);
+                GenerateBridgeX(cell, mesher);
             }
 
             if(cell.Position.y < map.Size.y - 1)
             {
-                var points = GenerateBridgeZ(cell);
-                mesher.AddQuad(points.a, points.b, points.c, points.d);
+                GenerateBridgeZ(cell, mesher);
             }
 
             if (cell.Position.y < map.Size.y - 1 && cell.Position.x < map.Size.x - 1)
             {
-                var points = GenerateCornerBridge(cell);
-                mesher.AddQuad(points.a, points.b, points.c, points.d);
+                GenerateCornerBridge(cell, mesher);
             }
         }
 
@@ -61,7 +59,7 @@ public class TerrainMesh : MonoBehaviour
         mrenderer.material = material;
     }
 
-    private (Vector3 a, Vector3 b, Vector3 c, Vector3 d) GenerateBridgeX(Cell cell)
+    private void GenerateBridgeX(Cell cell, Mesher mesher)
     {
         Cell neighbor = map.GetCell(cell.Position.x + 1, cell.Position.y);
 
@@ -73,10 +71,18 @@ public class TerrainMesh : MonoBehaviour
         Vector3 c = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
         Vector3 d = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y + TerrainSettings.CellFaceOffset);
 
-        return (a, b, c, d);
+        //are we going to terrace? */
+        if(Mathf.Abs(cell.height - neighbor.height) == 1)
+        {
+            Terrace(mesher, cell, a, b, neighbor, d, c);
+        }
+        else
+        {
+            mesher.AddQuad(a, b, c, d, cell.Color, cell.Color, neighbor.Color, neighbor.Color);
+        }
     }
 
-    private (Vector3 a, Vector3 b, Vector3 c, Vector3 d) GenerateBridgeZ(Cell cell)
+    private void GenerateBridgeZ(Cell cell, Mesher mesher)
     {
         Cell neighbor = map.GetCell(cell.Position.x, cell.Position.y + 1);
 
@@ -88,23 +94,123 @@ public class TerrainMesh : MonoBehaviour
         Vector3 c = new Vector3(neighbor.Position.x + TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
         Vector3 d = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
 
-        return (a, b, c, d);
+        //are we going to terrace? */
+        if (Mathf.Abs(cell.height - neighbor.height) == 1)
+        {
+            Terrace(mesher, cell, a, b, neighbor, d, c);
+        }
+        else
+        {
+            mesher.AddQuad(a, b, c, d, cell.Color, cell.Color, neighbor.Color, neighbor.Color);
+        }
     }
 
-    private (Vector3 a, Vector3 b, Vector3 c, Vector3 d) GenerateCornerBridge(Cell cell)
+    private void GenerateCornerBridge(Cell cell, Mesher mesher)
     {
         /* Starting from our corner, move CCW and make a quad from the 4 corners */
         Vector3 a = new Vector3(cell.Position.x + TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y + TerrainSettings.CellFaceOffset);
 
         Cell neighbor = map.GetCell(cell.Position.x + 1, cell.Position.y);
         Vector3 b = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y + TerrainSettings.CellFaceOffset);
+        Color cb = neighbor.Color;
 
         neighbor = map.GetCell(cell.Position.x + 1, cell.Position.y + 1);
         Vector3 c = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
+        Color cc = neighbor.Color;
 
         neighbor = map.GetCell(cell.Position.x, cell.Position.y + 1);
         Vector3 d = new Vector3(neighbor.Position.x + TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
+        Color cd = neighbor.Color;
 
-        return (a, b, c, d);
+        mesher.AddQuad(a, b, c, d, cell.Color, cb, cc, cd);
+
+        ///* Starting from our corner, move CCW and make a 4 triangles from the 4 corners */
+        //Vector3 a = new Vector3(cell.Position.x + TerrainSettings.CellFaceOffset, cell.height * TerrainSettings.UnitHeight, cell.Position.y + TerrainSettings.CellFaceOffset);
+
+        //Cell neighbor = map.GetCell(cell.Position.x + 1, cell.Position.y);
+        //Vector3 b = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y + TerrainSettings.CellFaceOffset);
+        //Color cb = neighbor.Color;
+
+        //neighbor = map.GetCell(cell.Position.x + 1, cell.Position.y + 1);
+        //Vector3 c = new Vector3(neighbor.Position.x - TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
+        //Color cc = neighbor.Color;
+
+        //neighbor = map.GetCell(cell.Position.x, cell.Position.y + 1);
+        //Vector3 d = new Vector3(neighbor.Position.x + TerrainSettings.CellFaceOffset, neighbor.height * TerrainSettings.UnitHeight, neighbor.Position.y - TerrainSettings.CellFaceOffset);
+        //Color cd = neighbor.Color;
+
+        //Vector3 midpoint = (a + b + c + d) / 4.0f;
+        //Color midcolor = (cell.Color + cb + cc + cd) / 4.0f;
+
+        ///* Generate 4 triangles to correctly bridge this gap */
+        //mesher.AddTriangle(a, b, midpoint, cell.Color, cb, midcolor);
+        //mesher.AddTriangle(b, c, midpoint, cb, cc, midcolor);
+        //mesher.AddTriangle(c, d, midpoint, cc, cd, midcolor);
+        //mesher.AddTriangle(d, a, midpoint, cd, cell.Color, midcolor);
+    }
+
+    public void Terrace(Mesher mesher, Cell start, Vector3 sl, Vector3 sr, Cell end, Vector3 el, Vector3 er)
+    {
+        /* First do the first slope */
+        Vector3 nl = TerraceLerp(sl, el, 1);
+        Vector3 nr = TerraceLerp(sr, er, 1);
+        Color intermediate = TerraceLerp(start.Color, end.Color, 1);
+        mesher.AddQuad(sl, sr, nr, nl, start.Color, start.Color, intermediate, intermediate);
+
+        /* Do the intermediate connection */
+        for(int i = 2; i < TerrainSettings.TerraceInterp; i++)
+        {
+            Vector3 left = nl;
+            Vector3 right = nr;
+            Color old = intermediate;
+
+            nl = TerraceLerp(sl, el, i);
+            nr = TerraceLerp(sr, er, i);
+            intermediate = TerraceLerp(start.Color, end.Color, i);
+
+            mesher.AddQuad(left, right, nr, nl, old, old, intermediate, intermediate);
+        }
+
+        /* Finally, connect to the endpooint */
+        mesher.AddQuad(nl, nr, er, el, intermediate, intermediate, end.Color, end.Color);
+
+
+    }
+
+    /// <summary>
+    /// A terrace interpolation function. Inspiration from
+    /// https://catlikecoding.com/unity/tutorials/hex-map/part-3/
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <param name="step"></param>
+    /// <returns></returns>
+    public Vector3 TerraceLerp(Vector3 a, Vector3 b, int step)
+    {
+        /* What do we need to multiply here */
+        float h = step * TerrainSettings.HorizontalTerraceStep;
+        float v = ((step + 1) / 2) * TerrainSettings.VerticalTerraceStep;
+
+        /* Calculate the interpolated point */
+        a.x += (b.x - a.x) * h;
+        a.y += (b.y - a.y) * v;
+        a.z += (b.z - a.z) * h;
+
+        /* Return the new point */
+        return a;
+    }
+
+    /// <summary>
+    /// A terrace color lerp. Based on 
+    /// https://catlikecoding.com/unity/tutorials/hex-map/part-3/
+    /// </summary>
+    /// <param name="a"></param>
+    /// <param name="b"></param>
+    /// <param name="step"></param>
+    /// <returns></returns>
+    public static Color TerraceLerp(Color a, Color b, int step)
+    {
+        float h = step * TerrainSettings.HorizontalTerraceStep;
+        return Color.Lerp(a, b, h);
     }
 }

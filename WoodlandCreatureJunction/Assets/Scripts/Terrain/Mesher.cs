@@ -14,15 +14,15 @@ public class Mesher
     /// <param name="a"></param>
     /// <param name="b"></param>
     /// <param name="c"></param>
-    public void AddTriangle(Vector3 a, Vector3 b, Vector3 c)
+    public void AddTriangle(Vector3 a, Vector3 b, Vector3 c, Color ca, Color cb, Color cc)
     {
         Points.Add(a);
         Points.Add(b);
         Points.Add(c);
 
-        Colors.Add(Color.white);
-        Colors.Add(Color.white);
-        Colors.Add(Color.white);
+        Colors.Add(ca);
+        Colors.Add(cb);
+        Colors.Add(cc);
 
         Triangles.Add(Points.Count - 1);
         Triangles.Add(Points.Count - 2);
@@ -36,10 +36,10 @@ public class Mesher
     /// <param name="b"></param>
     /// <param name="c"></param>
     /// <param name="d"></param>
-    public void AddQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d)
+    public void AddQuad(Vector3 a, Vector3 b, Vector3 c, Vector3 d, Color ca, Color cb, Color cc, Color cd)
     {
-        AddTriangle(a, b, d);
-        AddTriangle(b, c, d);
+        AddTriangle(a, b, d, ca, cb, cd);
+        AddTriangle(b, c, d, cb, cc, cd);
     }
 
     public void Reset()
