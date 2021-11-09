@@ -15,7 +15,8 @@ public class Map
         {
             for(int x = 0; x < size.x; x++, i++)
             {
-                data[i] = new Cell(x, y, Mathf.RoundToInt(6 * Mathf.PerlinNoise(2 * (float)x / Size.x, 2 * (float)y / Size.y)), Color.green / 2.5f);
+                data[i] = new Cell(x, y, Mathf.RoundToInt(12 * Mathf.PerlinNoise((float)x / Size.x, (float)y / Size.y)), Color.green / 2.5f);
+                data[i].Color = (data[i].height % 2 == 0) ? Color.yellow : Color.green;
             }
         }
 

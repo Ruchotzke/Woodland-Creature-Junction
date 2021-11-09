@@ -7,7 +7,7 @@ public class TerrainSettings
     /// <summary>
     /// The amount of worldspace distance for a unit of height.
     /// </summary>
-    public const float UnitHeight = 0.25f;
+    public const float UnitHeight = 0.50f;
 
     /// <summary>
     /// The amount of worldspace distance for a unit of xz direction.
@@ -27,7 +27,7 @@ public class TerrainSettings
     /// <summary>
     /// How many flat terraces are present on a single slope.
     /// </summary>
-    public const int NumTerraces = 2;
+    public const int NumTerraces = 4;
 
     /// <summary>
     /// How many interpolation points are present on a single slope.
