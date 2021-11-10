@@ -43,4 +43,9 @@ public class TerrainSettings
     /// How much does a single terrace interpolation move vertically.
     /// </summary>
     public const float VerticalTerraceStep = 1f / (NumTerraces + 1);
+
+    /// <summary>
+    /// The chunk size for the generated mesh.
+    /// </summary>
+    public const int ChunkSize = 20;
 }

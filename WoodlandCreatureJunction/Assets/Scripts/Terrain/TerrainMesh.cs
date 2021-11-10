@@ -6,28 +6,58 @@ public class TerrainMesh : MonoBehaviour
 {
     public Material material;
     public Map map;
+    public Vector2Int size;
 
-    private MeshFilter filter;
-    private MeshRenderer mrenderer;
+    private Vector2Int NumChunks;
+
+    MeshFilter[] filters;
+    
 
     private void Start()
     {
-        map = new Map(new Vector2Int(20, 20));
+        map = new Map(size);
+        NumChunks = new Vector2Int(Mathf.CeilToInt((float)size.x / TerrainSettings.ChunkSize), Mathf.CeilToInt((float)size.y / TerrainSettings.ChunkSize));
 
-        filter = GetComponent<MeshFilter>();
-        mrenderer = GetComponent<MeshRenderer>();
+        filters = new MeshFilter[NumChunks.x * NumChunks.y];
 
-        GenerateTerrain();
+        GenerateChunks();
     }
 
-    void GenerateTerrain()
+    void GenerateChunks()
+    {
+        /* Generate a portion of the mesh through each chunk */
+        for (int y = 0; y < NumChunks.y; y++)
+        {
+            for (int x = 0; x < NumChunks.x; x++)
+            {
+                /* Generate and store the chunk object */
+                GameObject chunk = new GameObject("Chunk " + x + ", " + y);
+                chunk.transform.parent = transform;
+                chunk.AddComponent<MeshRenderer>().material = material;
+                filters[x + y * NumChunks.x] = chunk.AddComponent<MeshFilter>();
+
+                /* Generate a mesh for this chunk */
+                List<Cell> chunkCells = new List<Cell>();
+                for (int cy = 0; cy < TerrainSettings.ChunkSize; cy++)
+                {
+                    for (int cx = 0; cx < TerrainSettings.ChunkSize; cx++)
+                    {
+                        chunkCells.Add(map.GetCell(cx + x * TerrainSettings.ChunkSize, cy + y * TerrainSettings.ChunkSize));
+                    }
+                }
+                GenerateTerrain(filters[x + y * NumChunks.x], chunkCells);
+            }
+        }
+    }
+
+    void GenerateTerrain(MeshFilter chunkFilter, List<Cell> chunkCells)
     {
         /* First create a mesher for us to use */
         /* REMEMBER: XY in 2D is XZ in 3D! */
         Mesher mesher = new Mesher();
 
         /* Using Unit Sizes, generate a quad for each, centered at that quad's position */
-        foreach (Cell cell in map.data)
+        foreach (Cell cell in chunkCells)
         {
             /* First generate the face for this cell */
             mesher.AddQuad(
@@ -55,8 +85,7 @@ public class TerrainMesh : MonoBehaviour
         }
 
         /* Generate the mesh and apply it */
-        filter.mesh = mesher.GenerateMesh();
-        mrenderer.material = material;
+        chunkFilter.mesh = mesher.GenerateMesh();
     }
 
     private void GenerateBridgeX(Cell cell, Mesher mesher)
