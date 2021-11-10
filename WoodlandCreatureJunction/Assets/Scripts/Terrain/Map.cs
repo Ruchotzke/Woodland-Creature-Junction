@@ -7,7 +7,7 @@ public class Map
     public readonly Vector2Int Size;
     public Cell[] data;
 
-    const float HEIGHT = 7f;
+    const float HEIGHT = 25f;
     const int OCTAVES = 3;
     const float PERSISTENCE = 0.8f;
     const float EXPONENT = 2f;
@@ -16,6 +16,7 @@ public class Map
     {
         this.Size = size;
 
+        /* Generate a map */
         data = new Cell[size.x * size.y];
         for(int y = 0, i = 0; y < size.y; y++)
         {
@@ -23,12 +24,11 @@ public class Map
             {
                 var sample = SampleTerrain(x, y);
                 data[i] = new Cell(x, y, Mathf.RoundToInt(sample.height), sample.biome.GetColor());
-                //data[i].Color = (data[i].height % 2 == 0) ? Color.yellow : Color.green;
-                //Color.HSVToRGB(sample.value, 1, 1)
             }
         }
 
-        //GenerateTerrain();
+        /* Find any flat spots for houses */
+        Debug.Log("Flat 3x3 spots: " + FindFlatSpots().Count);
     }
 
     private (float height, Biome biome) SampleTerrain(int x, int y)
@@ -94,6 +94,33 @@ public class Map
             if (moisture < 0.3f) return Biome.ROCKY;
             else return Biome.SNOW;
         }
+    }
+
+    private List<Vector2Int> FindFlatSpots()
+    {
+        List<Vector2Int> spots = new List<Vector2Int>();
+
+        for (int y = 1; y < Size.y - 1; y++)
+        {
+            for (int x = 1; x < Size.x - 1; x++)
+            {
+                int height = GetCell(x, y).height;
+                bool isValid = true;
+                for (int ky = -1; ky < 2 && isValid; ky++)
+                {
+                    for (int kx = -1; kx < 2 && isValid; kx++)
+                    {
+                        if (GetCell(x + kx, y + ky).height != height) isValid = false;
+                    }
+                }
+
+                if (isValid) spots.Add(new Vector2Int(x, y));
+                //if (isValid) GetCell(x, y).Color = Color.magenta;
+
+            }
+        }
+
+        return spots;
     }
 
     /// <summary>
