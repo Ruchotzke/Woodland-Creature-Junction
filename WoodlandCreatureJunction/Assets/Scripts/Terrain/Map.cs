@@ -7,20 +7,93 @@ public class Map
     public readonly Vector2Int Size;
     public Cell[] data;
 
+    const float HEIGHT = 7f;
+    const int OCTAVES = 3;
+    const float PERSISTENCE = 0.8f;
+    const float EXPONENT = 2f;
+
     public Map(Vector2Int size)
     {
         this.Size = size;
+
         data = new Cell[size.x * size.y];
         for(int y = 0, i = 0; y < size.y; y++)
         {
             for(int x = 0; x < size.x; x++, i++)
             {
-                data[i] = new Cell(x, y, Mathf.RoundToInt(12 * Mathf.PerlinNoise((float)x / Size.x, (float)y / Size.y)), Color.green / 2.5f);
-                data[i].Color = (data[i].height % 2 == 0) ? Color.yellow : Color.green;
+                var sample = SampleTerrain(x, y);
+                data[i] = new Cell(x, y, Mathf.RoundToInt(sample.height), sample.biome.GetColor());
+                //data[i].Color = (data[i].height % 2 == 0) ? Color.yellow : Color.green;
+                //Color.HSVToRGB(sample.value, 1, 1)
             }
         }
 
         //GenerateTerrain();
+    }
+
+    private (float height, Biome biome) SampleTerrain(int x, int y)
+    {
+        /* Do noise sampling for base sample */
+        /* Generate both a height map and a moisture map */
+        float heightSample = 0.0f;
+        float moistureSample = 0.0f;
+        float amplitude = 1.0f;
+        float frequency = 6.0f;
+        float divisor = 0.0f;
+        for(int i = 0; i < OCTAVES; i++)
+        {
+            /* Calculate this octaves noise. Add an offset to prevent correlation */
+            heightSample += amplitude * Noise.GenerateNoise(new Vector2((float)x / Size.x, (float)y / Size.y), Vector2.one * frequency, 0.13f * i * Vector2.one);
+            moistureSample += amplitude * Noise.GenerateNoise(new Vector2((float)x / Size.x, (float)y / Size.y), Vector2.one * frequency * 0.5f, 0.97f * i * Vector2.one);
+            divisor += amplitude;
+            amplitude *= PERSISTENCE;
+            frequency *= 2;
+        }
+        heightSample /= divisor;
+        heightSample = Mathf.Pow(heightSample * 1.2f, EXPONENT);
+
+        float height = heightSample * HEIGHT;
+
+        /* Calculate the biome based on height */
+        Biome biome = FindBiome(heightSample, moistureSample);
+
+
+        return (height, biome);
+    }
+
+    Biome FindBiome(float height, float moisture)
+    {
+        /* Lower elevations are all water */
+        if (height < 0.1f) return Biome.WATER;
+        else if (height < 0.15f) return Biome.COAST;
+        else if (height < 0.3f)
+        {
+            /* Coastal / Lowlands */
+            if (moisture < 0.3f) return Biome.GRASSLAND;
+            else return Biome.SWAMP;
+        }
+        else if(height < 0.6f)
+        {
+            /* Normal Height */
+            if (moisture < 0.3f) return Biome.DESERT;
+            if (moisture < 0.6f) return Biome.GRASSLAND;
+            else return Biome.FOREST;
+        }
+        else if(height < 0.8f)
+        {
+            /* Hills */
+            if (moisture < 0.3f) return Biome.ROCKY;
+            if (moisture < 0.5f) return Biome.SAVANNAH;
+            if (moisture < 0.8f) return Biome.TUNDRA;
+            else return Biome.SNOW;
+
+        }
+        else
+        {
+            /* Mountaintops */
+            if (moisture < 0.3f) return Biome.ROCKY;
+            else return Biome.SNOW;
+        }
     }
 
     /// <summary>
