@@ -29,6 +29,9 @@ public class Map
 
         /* Find any flat spots for houses */
         Debug.Log("Flat 3x3 spots: " + FindFlatSpots().Count);
+        Poisson poisson = new Poisson(new Rect(0f, 0f, 100f, 100f), 1);
+        List<Vector2> points = poisson.SamplePoints();
+        Debug.Log("Poisson complete: " + points.Count + " generated.");
     }
 
     private (float height, Biome biome) SampleTerrain(int x, int y)
