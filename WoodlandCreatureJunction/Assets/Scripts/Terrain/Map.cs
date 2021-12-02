@@ -27,11 +27,10 @@ public class Map
             }
         }
 
-        /* Find any flat spots for houses */
-        Debug.Log("Flat 3x3 spots: " + FindFlatSpots().Count);
-        Poisson poisson = new Poisson(new Rect(0f, 0f, 100f, 100f), 1);
-        List<Vector2> points = poisson.SamplePoints();
-        Debug.Log("Poisson complete: " + points.Count + " generated.");
+        /* Attempt to pathfind */
+        Pathfinder pf = new Pathfinder(this);
+        var path = pf.GetShortestPath(GetCell(Random.Range(0, 100), Random.Range(0, 100)), GetCell(Random.Range(0, 100), Random.Range(0, 100)));
+        Debug.Log("LENGTH: " + path?.path.Count);
     }
 
     private (float height, Biome biome) SampleTerrain(int x, int y)
@@ -204,6 +203,41 @@ public class Map
         if (x < 0 || y < 0 || x >= Size.x || y >= Size.y) Debug.LogError("Access out of bounds.");
 
         data[x + y * Size.x] = value;
+    }
+
+    public List<Cell> GetNeighbors(Cell c)
+    {
+        List<Cell> ret = new List<Cell>();
+
+        if(c.Position.x > 0)
+        {
+            Cell n = GetCell(c.Position.x - 1, c.Position.y);
+            int diff = n.height - c.height;
+            if (diff == 1 || diff == -1 || diff == 0) ret.Add(n);
+        }
+
+        if (c.Position.x < Size.x - 1)
+        {
+            Cell n = GetCell(c.Position.x + 1, c.Position.y);
+            int diff = n.height - c.height;
+            if (diff == 1 || diff == -1 || diff == 0) ret.Add(n);
+        }
+
+        if (c.Position.y > 0)
+        {
+            Cell n = GetCell(c.Position.x, c.Position.y - 1);
+            int diff = n.height - c.height;
+            if (diff == 1 || diff == -1 || diff == 0) ret.Add(n);
+        }
+
+        if (c.Position.y < Size.y - 1)
+        {
+            Cell n = GetCell(c.Position.x, c.Position.y + 1);
+            int diff = n.height - c.height;
+            if (diff == 1 || diff == -1 || diff == 0) ret.Add(n);
+        }
+
+        return ret;
     }
 }
 
