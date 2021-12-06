@@ -46,6 +46,7 @@ public class TerrainMesh : MonoBehaviour
                     }
                 }
                 GenerateTerrain(filters[x + y * NumChunks.x], chunkCells);
+                chunk.AddComponent<MeshCollider>();
             }
         }
     }
