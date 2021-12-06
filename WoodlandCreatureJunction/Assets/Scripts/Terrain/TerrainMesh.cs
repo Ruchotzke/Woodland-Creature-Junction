@@ -34,6 +34,7 @@ public class TerrainMesh : MonoBehaviour
                 GameObject chunk = new GameObject("Chunk " + x + ", " + y);
                 chunk.transform.parent = transform;
                 chunk.AddComponent<MeshRenderer>().material = material;
+                chunk.GetComponent<MeshRenderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.TwoSided;
                 filters[x + y * NumChunks.x] = chunk.AddComponent<MeshFilter>();
 
                 /* Generate a mesh for this chunk */
