@@ -7,6 +7,11 @@ public class TerrainMesh : MonoBehaviour
     public Material material;
     public Map map;
     public Vector2Int size;
+    public int numHomes = 10;
+
+    [Header("Prefabs")]
+    public GameObject pf_House;
+    public Villager pf_Villager;
 
     private Vector2Int NumChunks;
 
@@ -21,6 +26,43 @@ public class TerrainMesh : MonoBehaviour
         filters = new MeshFilter[NumChunks.x * NumChunks.y];
 
         GenerateChunks();
+
+        /* DEBUG INFO: Flat spots */
+        var spots = map.FindFlatSpots(new Vector2Int(5, 5));
+
+        /* Sort the spots by height - we want to prefer higher places */
+        spots.Sort((Vector2Int a, Vector2Int b) => b.y - a.y);
+        for(int i = 0; i < Mathf.Min(numHomes, spots.Count); i++)
+        {
+            /* Generate a home at this location */
+            Vector2Int spot = spots[i];
+            spots.Remove(spot);
+            Cell chosen = map.GetCell(spot.x, spot.y);
+            Debug.Log(chosen);
+            Debug.Log(CellToWorld(chosen));
+
+            /* Generate home */
+            var Home = Instantiate(pf_House);
+            Home.transform.position = CellToWorld(chosen);
+            Home.transform.Rotate(0f, 90f * Random.Range(0, 4), 0f);
+
+            /* Generate a villager for this house */
+            var villager = Instantiate(pf_Villager);
+            villager.name = "VILLAGER " + i;
+            villager.home = Home.transform;
+            villager.transform.position = Home.transform.position;
+        }
+    }
+
+    public Vector3 CellToWorld(Cell cell)
+    {
+        return new Vector3(cell.Position.x * TerrainSettings.UnitSize, cell.height * TerrainSettings.UnitHeight, cell.Position.y * TerrainSettings.UnitSize);
+    }
+
+    public Cell WorldToCell(Vector3 position)
+    {
+        Vector2Int cellpos = new Vector2Int(Mathf.FloorToInt(position.x), Mathf.FloorToInt(position.z));
+        return map.GetCell(cellpos.x, cellpos.y);
     }
 
     void GenerateChunks()

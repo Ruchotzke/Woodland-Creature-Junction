@@ -23,7 +23,7 @@ public class GenText : MonoBehaviour
             StartInfo = startInfo
         };
         // myProcess.StartInfo.Arguments = "this is the prompt";
-        startInfo.FileName = @"C:\Program Files\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
+        startInfo.FileName = @"C:\Users\Rucho\AppData\Local\Programs\Python\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
         startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput +"\" "+ "\"" + CharacterType + ": \"";
         myProcess.StartInfo.RedirectStandardInput = true;
         myProcess.Start();
@@ -54,7 +54,7 @@ public class GenText : MonoBehaviour
             StartInfo = startInfo
         };
         // myProcess.StartInfo.Arguments = "this is the prompt";
-        startInfo.FileName = @"C:\Program Files\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
+        startInfo.FileName = @"C:\Users\Rucho\AppData\Local\Programs\Python\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
         startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput + "\" " + "\"" + CharacterType + ": \"";
         myProcess.StartInfo.RedirectStandardInput = true;
         myProcess.Start();

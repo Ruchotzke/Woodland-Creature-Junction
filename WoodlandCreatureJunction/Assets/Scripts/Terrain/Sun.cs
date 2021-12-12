@@ -18,7 +18,7 @@ public class Sun : MonoBehaviour
     {
         //light = transform.GetChild(0).gameObject;
         cTime = 0f;
-        light = GameObject.Find("Sunlight");
+        light = transform.GetChild(0).gameObject;
     }
 
     // Update is called once per frame
@@ -28,7 +28,6 @@ public class Sun : MonoBehaviour
         cTime = cTime % 30f;
         float x_pos = radius * Mathf.Sin(Mathf.PI * (2*cTime)/sunCycleTime);
         float y_pos = radius * Mathf.Cos(Mathf.PI * (2*cTime) / sunCycleTime);
-        Debug.Log(x_pos);
         transform.localPosition = new Vector3(x_pos, y_pos, transform.localPosition.z);
         if(y_pos < 0)
         {

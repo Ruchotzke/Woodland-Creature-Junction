@@ -11,6 +11,8 @@ public class Map
     const int OCTAVES = 3;
     const float PERSISTENCE = 0.8f;
     const float EXPONENT = 2f;
+    const float X_OFFSET = 50.0f;
+    const float Y_OFFSET = 77.0f;
 
     public Map(Vector2Int size)
     {
@@ -27,10 +29,10 @@ public class Map
             }
         }
 
-        /* Attempt to pathfind */
-        Pathfinder pf = new Pathfinder(this);
-        var path = pf.GetShortestPath(GetCell(Random.Range(0, 100), Random.Range(0, 100)), GetCell(Random.Range(0, 100), Random.Range(0, 100)));
-        Debug.Log("LENGTH: " + path?.path.Count);
+        ///* Attempt to pathfind */
+        //Pathfinder pf = new Pathfinder(this);
+        //var path = pf.GetShortestPath(GetCell(Random.Range(0, 100), Random.Range(0, 100)), GetCell(Random.Range(0, 100), Random.Range(0, 100)));
+        //Debug.Log("LENGTH: " + path?.path.Count);
     }
 
     private (float height, Biome biome) SampleTerrain(int x, int y)
@@ -45,8 +47,9 @@ public class Map
         for(int i = 0; i < OCTAVES; i++)
         {
             /* Calculate this octaves noise. Add an offset to prevent correlation */
-            heightSample += amplitude * Noise.GenerateNoise(new Vector2((float)x / Size.x, (float)y / Size.y), Vector2.one * frequency, 0.13f * i * Vector2.one);
-            moistureSample += amplitude * Noise.GenerateNoise(new Vector2((float)x / Size.x, (float)y / Size.y), Vector2.one * frequency * 0.5f, 0.97f * i * Vector2.one);
+            Vector2 offset = new Vector2(X_OFFSET, Y_OFFSET);
+            heightSample += amplitude * Noise.GenerateNoise(new Vector2((float)x / Size.x, (float)y / Size.y) + offset, Vector2.one * frequency, 0.13f * i * Vector2.one);
+            moistureSample += amplitude * Noise.GenerateNoise(new Vector2((float)x / Size.x, (float)y / Size.y) + offset, Vector2.one * frequency * 0.5f, 0.97f * i * Vector2.one);
             divisor += amplitude;
             amplitude *= PERSISTENCE;
             frequency *= 2;
@@ -98,21 +101,23 @@ public class Map
         }
     }
 
-    private List<Vector2Int> FindFlatSpots()
+    public List<Vector2Int> FindFlatSpots(Vector2Int size)
     {
         List<Vector2Int> spots = new List<Vector2Int>();
 
-        for (int y = 1; y < Size.y - 1; y++)
+        for (int y = size.y / 2; y < Size.y - size.y / 2; y++)
         {
-            for (int x = 1; x < Size.x - 1; x++)
+            for (int x = size.x / 2; x < Size.x - size.x / 2; x++)
             {
                 int height = GetCell(x, y).height;
                 bool isValid = true;
-                for (int ky = -1; ky < 2 && isValid; ky++)
+                for (int ky = -size.y / 2; ky <= size.y / 2 && isValid; ky++)
                 {
-                    for (int kx = -1; kx < 2 && isValid; kx++)
+                    for (int kx = -size.x / 2; kx <= size.x / 2 && isValid; kx++)
                     {
-                        if (GetCell(x + kx, y + ky).height != height) isValid = false;
+                        Cell curr = GetCell(x + kx, y + ky);
+                        if (spots.Contains(curr.Position)) isValid = false;
+                        if (curr.height != height) isValid = false;
                     }
                 }
 
