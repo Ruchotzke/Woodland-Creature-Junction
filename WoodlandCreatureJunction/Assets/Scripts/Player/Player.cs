@@ -13,6 +13,8 @@ public class Player : MonoBehaviour
     private GameObject Villager;
     private Task<string> genTask;
 
+    private CameraController cameraController;
+
     public enum PlayerState
     {
         IDLE,
@@ -25,6 +27,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        cameraController = FindObjectOfType<CameraController>();
         t = GetComponent<Transform>();
         ptext = GameObject.Find("PlayerText");
         ptext.SetActive(false);
@@ -42,6 +45,7 @@ public class Player : MonoBehaviour
                 string output = await genTask;
                 state = PlayerState.IDLE;
                 Villager.GetComponent<Villager>().EndConversation();
+                cameraController.EndConversation();
             }
             else
             {
@@ -143,6 +147,8 @@ public class Player : MonoBehaviour
 
         Villager = VillagerList[closest_index];
         Villager.GetComponent<Villager>().StartConversation(transform);
+        cameraController.StartConversation(Villager.transform);
+
         ptext.SetActive(true);
         
 

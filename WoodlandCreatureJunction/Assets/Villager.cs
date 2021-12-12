@@ -86,6 +86,7 @@ public class Villager : MonoBehaviour
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(new Vector3(direction.x, 0.0f, direction.z).normalized), 80.0f * Time.deltaTime);
 
             /* Play the correct animation */
+            animationController.CurrentAnimation = AnimationController.Animation.TALKING;
         }
 
         /* Update the animation state */
