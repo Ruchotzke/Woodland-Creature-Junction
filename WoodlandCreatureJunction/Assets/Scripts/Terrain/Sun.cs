@@ -25,11 +25,11 @@ public class Sun : MonoBehaviour
     void Update()
     {
         cTime += Time.deltaTime;
-        cTime = cTime % 30f;
+        cTime = cTime % sunCycleTime;
         float x_pos = radius * Mathf.Sin(Mathf.PI * (2*cTime)/sunCycleTime);
         float y_pos = radius * Mathf.Cos(Mathf.PI * (2*cTime) / sunCycleTime);
         transform.localPosition = new Vector3(x_pos, y_pos, transform.localPosition.z);
-        if(y_pos < 0)
+        if (y_pos < 0)
         {
             light.SetActive(false);
         }
@@ -37,8 +37,7 @@ public class Sun : MonoBehaviour
         {
             light.SetActive(true);
         }
-        transform.LookAt(GetComponentInParent<Transform>());
-        // transform.RotateAround(new Vector3(1f, 0f, 0f), sunCycleTime * Time.deltaTime);
+        light.transform.LookAt(transform.parent);
     }
 
 }
