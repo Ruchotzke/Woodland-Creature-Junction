@@ -38,8 +38,6 @@ public class TerrainMesh : MonoBehaviour
             Vector2Int spot = spots[i];
             spots.Remove(spot);
             Cell chosen = map.GetCell(spot.x, spot.y);
-            Debug.Log(chosen);
-            Debug.Log(CellToWorld(chosen));
 
             /* Generate home */
             var Home = Instantiate(pf_House);

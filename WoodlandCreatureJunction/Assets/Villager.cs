@@ -14,10 +14,14 @@ public class Villager : MonoBehaviour
     VillagerAI AIState = VillagerAI.STANDING;
     bool Moving = false;
     float elapsedStateTime = 0.0f;
+    float generatedWaitTime = 0.0f;
 
     Cell target;
     Pathfinder.Path currPath = null;
     Vector3[] currPos = new Vector3[2]; //0 = source, 1 = target
+
+    VillagerAI prevState = VillagerAI.STANDING;
+    Transform playerPos;
 
     private void Start()
     {
@@ -25,18 +29,23 @@ public class Villager : MonoBehaviour
         animationController = GetComponent<AnimationController>();
         terrainMesh = FindObjectOfType<TerrainMesh>();
         pathfinder = new Pathfinder(terrainMesh.map);
-
-        /* Testing: Choose a random place and walk there */
-        var nearby = Nearby(20);
-        Vector2Int pos = nearby[Random.Range(0, nearby.Count)];
-        target = terrainMesh.map.GetCell(pos.x, pos.y);
-        StartPathfinding(target);
     }
 
     private void Update()
     {
         /* On any frame we move, we need to update our height to match the terrain */
-        if (AIState == VillagerAI.WANDERING)
+        elapsedStateTime += Time.deltaTime;
+        if(AIState == VillagerAI.STANDING)
+        {
+            if (elapsedStateTime >= generatedWaitTime)
+            {
+                var nearby = Nearby(20);
+                Vector2Int pos = nearby[Random.Range(0, nearby.Count)];
+                target = terrainMesh.map.GetCell(pos.x, pos.y);
+                StartPathfinding(target);
+            }
+        }
+        else if (AIState == VillagerAI.WANDERING)
         {
             /* Move forward on the lerp route, checking if we made it to our destination */
             Vector3 direction = (currPos[1] - currPos[0]).normalized;
@@ -62,11 +71,21 @@ public class Villager : MonoBehaviour
                     /* We reached the end of our path and arrived. End the pathfinding */
                     Moving = false;
                     AIState = VillagerAI.STANDING;
+                    elapsedStateTime = 0.0f;
+                    generatedWaitTime = Random.Range(15.0f, 30.0f);
                 }
             }
 
             /* We should also face our target */
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(new Vector3(direction.x, 0.0f, direction.z).normalized), 150f * Time.deltaTime);
+        }
+        else if(AIState == VillagerAI.IN_CONVERSATION)
+        {
+            /* Rotate towards the player */
+            Vector3 direction = (playerPos.position - transform.position).normalized;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(new Vector3(direction.x, 0.0f, direction.z).normalized), 80.0f * Time.deltaTime);
+
+            /* Play the correct animation */
         }
 
         /* Update the animation state */
@@ -87,6 +106,22 @@ public class Villager : MonoBehaviour
         
     }
 
+    public void StartConversation(Transform player)
+    {
+        /* If we are moving, stop moving */
+        prevState = AIState;
+        AIState = VillagerAI.IN_CONVERSATION;
+        playerPos = player;
+        Debug.Log("STARTING CONVERSATION.");
+    }
+
+    public void EndConversation()
+    {
+        /* We can resume whatever we were doing before */
+        AIState = prevState;
+        Debug.Log("ENDING CONVERSATION.");
+    }
+
     void StartPathfinding(Cell endGoal)
     {
         /* Get the shortest path */
@@ -97,10 +132,7 @@ public class Villager : MonoBehaviour
         currPos[0] = terrainMesh.CellToWorld(currPath.Traverse());
         currPos[1] = terrainMesh.CellToWorld(currPath.Traverse());
 
-        Debug.Log(string.Join(", ", currPos));
-
         /* Update the state */
-        Moving = true;
         AIState = VillagerAI.WANDERING;
     }
 
@@ -128,6 +160,7 @@ public class Villager : MonoBehaviour
     {
         STANDING,
         WANDERING,
-        RETURNING_HOME
+        RETURNING_HOME,
+        IN_CONVERSATION
     }
 }

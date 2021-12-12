@@ -41,6 +41,7 @@ public class Player : MonoBehaviour
             {
                 string output = await genTask;
                 state = PlayerState.IDLE;
+                Villager.GetComponent<Villager>().EndConversation();
             }
             else
             {
@@ -141,6 +142,7 @@ public class Player : MonoBehaviour
             
 
         Villager = VillagerList[closest_index];
+        Villager.GetComponent<Villager>().StartConversation(transform);
         ptext.SetActive(true);
         
 
