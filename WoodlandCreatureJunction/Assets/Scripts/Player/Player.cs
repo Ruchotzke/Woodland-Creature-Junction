@@ -118,28 +118,34 @@ public class Player : MonoBehaviour
     {
 
         float time = Time.deltaTime;
+        Vector3 Direction = Vector3.zero;
         if (Input.GetKey(KeyCode.W))
         {
-            t.position += new Vector3(0f, 0f, time*speed);
+            Direction += transform.forward;
             state = PlayerState.MOVING;
         }
-        else if (Input.GetKey(KeyCode.A))
+
+        if (Input.GetKey(KeyCode.A))
         {
-            t.position += new Vector3(time * -speed, 0f, 0f);
+            Direction -= transform.right;
             state = PlayerState.MOVING;
         }
-        else if (Input.GetKey(KeyCode.S))
+        
+        if (Input.GetKey(KeyCode.S))
         {
-            t.position += new Vector3(0f, 0f, time * -speed);
+            Direction -= transform.forward;
             state = PlayerState.MOVING;
 
         }
-        else if (Input.GetKey(KeyCode.D))
+        
+        if (Input.GetKey(KeyCode.D))
         {
-            t.position += new Vector3(time * speed, 0f, 0f);
+            Direction += transform.right;
             state = PlayerState.MOVING;
 
         }
+
+        transform.position += Direction.normalized * time * speed;
     }
 
     void InitTalk()
