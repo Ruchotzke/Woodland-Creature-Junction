@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -94,11 +95,19 @@ public class Player : MonoBehaviour
     string ProcessOutput(string input)
     {
         /* just get the first sentence in the AI response */
-        input = input.Substring(input.IndexOf("Villager says "));                   //remove the player prompt
-        input = input.Substring(0, input.IndexOfAny(new char[] { '.', '!', '?' }) + 1); //stop at 1 sentence
-        input = input.Remove(input.IndexOf('\u001B'), 1);   //remove random escape
-        input = input.Remove(input.IndexOf("[0m"), 3);      //remove weird chars
-        input = input.Substring("Villager says ".Length);   //remove prompt
+        try
+        {
+            input = input.Substring(input.IndexOf("Villager says "));                   //remove the player prompt
+            input = input.Substring(0, input.IndexOfAny(new char[] { '.', '!', '?' }) + 1); //stop at 1 sentence
+            input = input.Remove(input.IndexOf('\u001B'), 1);   //remove random escape
+            input = input.Remove(input.IndexOf("[0m"), 3);      //remove weird chars
+            input = input.Substring("Villager says ".Length);   //remove prompt
+        }
+        catch (Exception)
+        {
+            return input;
+        }
+        
 
         Debug.Log("Villager output: " + input);
 

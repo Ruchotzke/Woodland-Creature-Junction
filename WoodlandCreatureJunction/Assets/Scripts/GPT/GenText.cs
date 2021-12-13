@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 public class GenText : MonoBehaviour
 {
+    public static string PYTHON_PATH = @"C:\Users\Rucho\AppData\Local\Programs\Python\Python39\python.exe";
 
     public static string GenerateText(string PlayerInput, string CharacterType)
     {
@@ -23,7 +24,7 @@ public class GenText : MonoBehaviour
             StartInfo = startInfo
         };
         // myProcess.StartInfo.Arguments = "this is the prompt";
-        startInfo.FileName = @"C:\Users\Rucho\AppData\Local\Programs\Python\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
+        startInfo.FileName = PYTHON_PATH; //Not sure how else to do this, could maybe make the game ask for this in gui
         //startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput +"\" "+ "\"" + CharacterType + ": \"";
         startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput + "\"";
         myProcess.StartInfo.RedirectStandardInput = true;
@@ -55,10 +56,20 @@ public class GenText : MonoBehaviour
             StartInfo = startInfo
         };
         // myProcess.StartInfo.Arguments = "this is the prompt";
-        startInfo.FileName = @"C:\Users\Rucho\AppData\Local\Programs\Python\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
+        startInfo.FileName = PYTHON_PATH; //Not sure how else to do this, could maybe make the game ask for this in gui
         startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput + "\" " + "\"" + CharacterType + ": \"";
         myProcess.StartInfo.RedirectStandardInput = true;
-        myProcess.Start();
+
+        try
+        {
+            myProcess.Start();
+        }
+        catch (Exception)
+        {
+            UnityEngine.Debug.LogError("Unable to open python. Erroring out.");
+            return "ERROR";
+        }
+        
         //UnityEngine.Debug.Log("START\n");
         /*myProcess.StandardInput.WriteLine(" \"Howdy partner\"");
         myProcess.StandardInput.Close();*/
@@ -68,16 +79,5 @@ public class GenText : MonoBehaviour
 
         myProcess.WaitForExit();
         return output;
-    }
-    // Start is called before the first frame update
-    void Start()
-    {
-        //GenerateText("Krusty Krab Pizza is the pizza for you and me.", "Squidward");
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }
