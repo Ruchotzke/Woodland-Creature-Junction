@@ -7,6 +7,7 @@ public class Mesher
     List<Vector3> Points = new List<Vector3>();
     List<int> Triangles = new List<int>();
     List<Color> Colors = new List<Color>();
+    List<Vector2> UVs = new List<Vector2>();
 
     /// <summary>
     /// Add a triangle to this mesh. Vertices must be defined in winding order (CCW)
@@ -40,6 +41,13 @@ public class Mesher
     {
         AddTriangle(a, b, d, ca, cb, cd);
         AddTriangle(b, c, d, cb, cc, cd);
+
+        UVs.Add(Vector2.zero);
+        UVs.Add(new Vector2(1.0f, 0.0f));
+        UVs.Add(new Vector2(0.0f, 1.0f));
+        UVs.Add(new Vector2(1.0f, 0.0f));
+        UVs.Add(new Vector2(1.0f, 1.0f));
+        UVs.Add(new Vector2(0.0f, 1.0f));
     }
 
     public void Reset()
@@ -55,9 +63,12 @@ public class Mesher
         mesh.SetVertices(Points.ToArray());
         mesh.SetColors(Colors.ToArray());
         mesh.SetTriangles(Triangles.ToArray(), 0);
+        mesh.SetUVs(0, UVs.ToArray());
+
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
+        mesh.RecalculateTangents();
 
         return mesh;
     }
