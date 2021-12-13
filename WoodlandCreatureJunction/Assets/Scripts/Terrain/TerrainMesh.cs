@@ -8,9 +8,11 @@ public class TerrainMesh : MonoBehaviour
     public Map map;
     public Vector2Int size;
     public int numHomes = 10;
-
+    public int numRocks = 1000;
     [Header("Prefabs")]
     public GameObject pf_House;
+    public GameObject pf_Rock;
+    public GameObject pf_Rock_2;
     public Villager pf_Villager;
 
     private Vector2Int NumChunks;
@@ -29,6 +31,7 @@ public class TerrainMesh : MonoBehaviour
 
         /* DEBUG INFO: Flat spots */
         var spots = map.FindFlatSpots(new Vector2Int(5, 5));
+        var rockspots = map.FindFlatSpots(new Vector2Int(3, 3));
 
         /* Sort the spots by height - we want to prefer higher places */
         spots.Sort((Vector2Int a, Vector2Int b) => b.y - a.y);
@@ -50,6 +53,27 @@ public class TerrainMesh : MonoBehaviour
             villager.home = Home.transform;
             villager.transform.position = Home.transform.position;
         }
+        bool flag = false;
+        
+
+        for(int i = 0; i < Mathf.Min(numRocks, rockspots.Count); i++)
+        {
+            Vector2Int spot = rockspots[Random.Range(0, spots.Count)];
+            rockspots.Remove(spot);
+            Cell chosen = map.GetCell(spot.x, spot.y);
+            if(flag)
+            {
+                var Rock = Instantiate(pf_Rock);
+                Rock.transform.position = CellToWorld(chosen);
+            }
+            else
+            {
+                var Rock = Instantiate(pf_Rock_2);
+                Rock.transform.position = CellToWorld(chosen);
+            }
+            flag = !flag;
+        }
+
     }
 
     public Vector3 CellToWorld(Cell cell)

@@ -13,18 +13,37 @@ public class Player : MonoBehaviour
     private float speed = 4f;
     private PlayerState state;
     private GameObject Villager;
+    private GameObject Shovel;
+    private GameObject Rock;
+    private Vector3 orig_pos_shovel;
+    private Vector3 rock_pos_shovel;
+    private float shov_time;
     private Task<string> genTask;
-
+    private ActionState actionState;
     [SerializeField] GameObject PlayerText;
+    [Header("Prefabs")]
+    public GameObject pf_Shovel;
 
+    [Header("Sprites")]
+    public Sprite Talk;
+    public Sprite RockBreak;
     private CameraController cameraController;
-
+    private float conversation_halt = 3f;
+    private float conv_counter = 0f;
     public enum PlayerState
     {
         IDLE,
         MOVING,
         THINKING,
-        TALKING
+        TALKING,
+        READING,
+        ROCK_BREAK
+    }
+
+    public enum ActionState
+    {
+        TALK,
+        ROCKBREAK
     }
 
 
@@ -36,12 +55,25 @@ public class Player : MonoBehaviour
         ptext = PlayerText;
         ptext.SetActive(false);
         state = PlayerState.IDLE;
+        actionState = ActionState.TALK;
     }
 
     // Update is called once per frame
     async void Update()
     {
-        if (state == PlayerState.TALKING)
+        if(state == PlayerState.READING)
+        {
+            conv_counter += Time.deltaTime;
+            if(conv_counter > conversation_halt)
+            {
+                /* End the conversation */
+                state = PlayerState.IDLE;
+                Villager.GetComponent<Villager>().EndConversation();
+                cameraController.EndConversation();
+            }
+
+        }
+        else if (state == PlayerState.TALKING)
         {
             //check status of async task
             if(genTask.IsCompleted)
@@ -50,11 +82,8 @@ public class Player : MonoBehaviour
                 string output = await genTask;
                 output = ProcessOutput(output);
                 Villager.GetComponentInChildren<BillboardCanvas>().DisplayMessage(output);
-
-                /* End the conversation */
-                state = PlayerState.IDLE;
-                Villager.GetComponent<Villager>().EndConversation();
-                cameraController.EndConversation();
+                conv_counter = 0f;
+                state = PlayerState.READING;
             }
             else
             {
@@ -78,12 +107,45 @@ public class Player : MonoBehaviour
             }
           
         }
+        else if (state == PlayerState.ROCK_BREAK)
+        {
+            shov_time += Time.deltaTime;
+            Shovel.transform.position = Vector3.Lerp(orig_pos_shovel, rock_pos_shovel, shov_time);
+            if (shov_time > 1f)
+            {
+                state = PlayerState.IDLE;
+                Shovel.SetActive(false);
+                Rock.SetActive(false);
+            }
+        }
         else
         {
+            if(Input.GetKeyDown(KeyCode.E))
+            {
+                GameObject tool = GameObject.Find("Tool");
+                if (actionState == ActionState.TALK)
+                {
+                    tool.GetComponent<Image>().sprite = RockBreak;
+                    actionState = ActionState.ROCKBREAK;
+                }
+                else
+                {
+                    tool.GetComponent<Image>().sprite = Talk;
+                    actionState = ActionState.TALK;
+
+                }
+            }
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                state = PlayerState.THINKING;
-                InitTalk();
+                if(actionState == ActionState.TALK)
+                {
+                    state = PlayerState.THINKING;
+                    InitTalk();
+                }
+                else
+                {
+                    InitRock();
+                }
             }
 
             Movement();
@@ -97,6 +159,7 @@ public class Player : MonoBehaviour
     string ProcessOutput(string input)
     {
         /* just get the first sentence in the AI response */
+        Debug.Log(input);
         try
         {
             input = input.Substring(input.IndexOf("Villager says "));                   //remove the player prompt
@@ -188,6 +251,40 @@ public class Player : MonoBehaviour
 
         ptext.SetActive(true);
         
+
+    }
+
+    void InitRock()
+    {
+        GameObject[] RockList = GameObject.FindGameObjectsWithTag("Rock");
+
+        int closest_index = -1;
+        float minDist = 5f; //Implicit 5f distance cutoff
+        for (int i = 0; i < RockList.Length; i++)
+        {
+            float distance = Vector3.Distance(RockList[i].GetComponent<Transform>().position, t.position);
+            if (distance < minDist)
+            {
+                minDist = distance;
+                closest_index = i;
+            }
+        }
+
+        if (closest_index == -1)
+        {
+            state = PlayerState.IDLE;
+            return;
+        }
+
+
+        Rock = RockList[closest_index];
+        Shovel = Instantiate(pf_Shovel);
+        Shovel.transform.position = Rock.transform.position + new Vector3(0f,3f,0f);
+        orig_pos_shovel = Shovel.transform.position;
+        rock_pos_shovel = Rock.transform.position + new Vector3(0f,1f,0f);
+        shov_time = 0f;
+        state = PlayerState.ROCK_BREAK;
+
 
     }
 }
