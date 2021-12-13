@@ -1396,7 +1396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Text: {fileID: 7130072864988118884}
   CanvasContainer: {fileID: 8804322227479152716}
-  MessageTimeout: 3
+  MessageTimeout: 6
 --- !u!1 &7909899462733888514
 GameObject:
   m_ObjectHideFlags: 0

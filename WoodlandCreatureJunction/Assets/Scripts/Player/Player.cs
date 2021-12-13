@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     private GameObject Villager;
     private Task<string> genTask;
 
+    [SerializeField] GameObject PlayerText;
+
     private CameraController cameraController;
 
     public enum PlayerState
@@ -31,7 +33,7 @@ public class Player : MonoBehaviour
     {
         cameraController = FindObjectOfType<CameraController>();
         t = GetComponent<Transform>();
-        ptext = GameObject.Find("PlayerText");
+        ptext = PlayerText;
         ptext.SetActive(false);
         state = PlayerState.IDLE;
     }

@@ -12,7 +12,6 @@ public class Villager : MonoBehaviour
     public float MoveSpeed = 1.0f;
 
     VillagerAI AIState = VillagerAI.STANDING;
-    bool Moving = false;
     float elapsedStateTime = 0.0f;
     float generatedWaitTime = 0.0f;
 
@@ -69,7 +68,6 @@ public class Villager : MonoBehaviour
                 else
                 {
                     /* We reached the end of our path and arrived. End the pathfinding */
-                    Moving = false;
                     AIState = VillagerAI.STANDING;
                     elapsedStateTime = 0.0f;
                     generatedWaitTime = Random.Range(15.0f, 30.0f);

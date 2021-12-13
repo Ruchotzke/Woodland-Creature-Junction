@@ -1,0 +1,41 @@
+Justin Merkel and Ethan Ruchotzke
+CprE 557 Final Project
+
+Software Requirements and Installation Instructions
+
+Because our code requires python to run the model underneath, there are a few extra requirements.
+
+1) Install python 3.9.0
+	It's very important to get the correct version. Any older and the model may not be supported. Any newer and you cannot run pytorch.
+	Python Download: https://www.python.org/downloads/release/python-390/
+
+	Run the installer. **IMPORTANT - IN THE INSTALLER, LOOK FOR A "ADD TO PATH" CHECKBOX. ENABLE IT**
+	Take note of where it is installed on your machine (the location of python.exe).
+	Usually, it defaults to C:\Users\USERNAME\AppData\Local\Programs\Python\Python39\python.exe
+	
+2) Install GPT2 and upgrade pip system tools
+	Open either the command line or windows terminal. Can you run "python"? if not, you need to add python to your path.
+	if you can run python, great. Now, run the following commands.
+	**NOTE YOU MAY NEED OPEN THE COMMAND PROMPT AS AN ADMINISTRATOR**
+
+	pip3 install aitextgen
+	pip3 install --upgrade pip setuptools
+
+3) Download the GPT2 Model
+	If you want the code to run effectively in the game, you need to run it once outside of the game to force it to download the model.
+	In your terminal, navigate to the unity executable folder (probably called Build). From there, move backwards
+	a directory and into the "GPT2" directory (cd ../GPT2).
+
+	Run the python code with the following command.
+	
+	python RunAiTextGen.py "How's the weather?"
+	OR IF THAT DOES NOT RUN
+	python3 RunAiTextGen.py "How's the weather?"
+
+	The code should download the model (120MB so it may take some time) and then spit out a generated response.
+	if that worked, well done. Your environment is set up to run correctly.
+
+4) ONCE INSIDE OF THE GAME
+	****Make sure you go to the options in the main menu and set your python path****
+		If you don't, the game won't be able to find python to generate text.
+	

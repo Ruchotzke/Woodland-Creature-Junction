@@ -10,7 +10,11 @@ public class CameraController : MonoBehaviour
     [Header("Conversation Parameters")]
     public float TransitionTime = 2.0f;
 
+    [Header("Control Parameters")]
+    public float sensitivity = 1.0f;
+
     Player player;
+    Transform pivot;
 
     Vector3 originalPosition;
     Quaternion originalRotation;
@@ -22,11 +26,14 @@ public class CameraController : MonoBehaviour
 
     private void Awake()
     {
-        player = FindObjectOfType<Player>();
+        pivot = transform.parent;
+        player = GameObject.FindObjectOfType<Player>();
     }
 
     private void Update()
     {
+
+        /* Handle Conversation Cutaways */
         if (inConversation)
         {
             /* Slerp and lerp towards the target camera position */
@@ -56,6 +63,14 @@ public class CameraController : MonoBehaviour
                 Camera.main.transform.position = Vector3.Lerp(originalPosition, targetPosition, currTransitionTimer / TransitionTime);
                 Camera.main.transform.rotation = Quaternion.Slerp(originalRotation, targetRotation, currTransitionTimer / TransitionTime);
             }
+            //else
+            //{
+            //    /* We arent in a conversation and we aren't transitioning. Free Movement. */
+            //    if (Cursor.lockState != CursorLockMode.Locked) Cursor.lockState = CursorLockMode.Locked;
+            //    Vector2 mouseMovement = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+            //    pivot.localRotation = Quaternion.Euler(pivot.localRotation.x + mouseMovement.y * sensitivity * Time.deltaTime, pivot.localRotation.y, pivot.localRotation.z);
+            //    player.transform.rotation = Quaternion.Euler(player.transform.rotation.x, player.transform.rotation.y + mouseMovement.x * sensitivity * Time.deltaTime, player.transform.rotation.z);
+            //}
         }
     }
 
@@ -66,6 +81,7 @@ public class CameraController : MonoBehaviour
         originalPosition = Camera.main.transform.position;
         originalRotation = Camera.main.transform.rotation;
         transitioning = true;
+        Cursor.lockState = CursorLockMode.None;
 
         /* Calculate target */
         targetPosition = ((player.transform.position - villager.position) * 1.2f) + villager.position; //directly behind the player
