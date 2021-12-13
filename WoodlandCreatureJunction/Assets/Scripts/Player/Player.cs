@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -42,7 +43,12 @@ public class Player : MonoBehaviour
             //check status of async task
             if(genTask.IsCompleted)
             {
+                /* Get the text */
                 string output = await genTask;
+                output = ProcessOutput(output);
+                Villager.GetComponentInChildren<BillboardCanvas>().DisplayMessage(output);
+
+                /* End the conversation */
                 state = PlayerState.IDLE;
                 Villager.GetComponent<Villager>().EndConversation();
                 cameraController.EndConversation();
@@ -83,6 +89,20 @@ public class Player : MonoBehaviour
         
         
       
+    }
+
+    string ProcessOutput(string input)
+    {
+        /* just get the first sentence in the AI response */
+        input = input.Substring(input.IndexOf("Villager says "));                   //remove the player prompt
+        input = input.Substring(0, input.IndexOfAny(new char[] { '.', '!', '?' }) + 1); //stop at 1 sentence
+        input = input.Remove(input.IndexOf('\u001B'), 1);   //remove random escape
+        input = input.Remove(input.IndexOf("[0m"), 3);      //remove weird chars
+        input = input.Substring("Villager says ".Length);   //remove prompt
+
+        Debug.Log("Villager output: " + input);
+
+        return input;
     }
 
   /*  async void async_gentext()

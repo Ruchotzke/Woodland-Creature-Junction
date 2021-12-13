@@ -24,7 +24,8 @@ public class GenText : MonoBehaviour
         };
         // myProcess.StartInfo.Arguments = "this is the prompt";
         startInfo.FileName = @"C:\Users\Rucho\AppData\Local\Programs\Python\Python39\python.exe"; //Not sure how else to do this, could maybe make the game ask for this in gui
-        startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput +"\" "+ "\"" + CharacterType + ": \"";
+        //startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput +"\" "+ "\"" + CharacterType + ": \"";
+        startInfo.Arguments = @"..\GPT2\RunAiTextGen.py " + "\" " + PlayerInput + "\"";
         myProcess.StartInfo.RedirectStandardInput = true;
         myProcess.Start();
         //UnityEngine.Debug.Log("START\n");

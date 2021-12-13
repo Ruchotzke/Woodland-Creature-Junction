@@ -70,7 +70,7 @@ public class CameraController : MonoBehaviour
         /* Calculate target */
         targetPosition = ((player.transform.position - villager.position) * 1.2f) + villager.position; //directly behind the player
         targetPosition += 4.0f * villager.transform.right;
-        targetPosition += villager.transform.up;   //raise the camera up above the conversation a bit
+        targetPosition += 2.0f * villager.transform.up;   //raise the camera up above the conversation a bit
         targetRotation = Quaternion.LookRotation((villager.transform.position - targetPosition).normalized); //look about halfway between them
 
     }

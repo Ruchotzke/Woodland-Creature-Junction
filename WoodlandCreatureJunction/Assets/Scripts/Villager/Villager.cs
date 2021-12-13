@@ -113,14 +113,12 @@ public class Villager : MonoBehaviour
         prevState = AIState;
         AIState = VillagerAI.IN_CONVERSATION;
         playerPos = player;
-        Debug.Log("STARTING CONVERSATION.");
     }
 
     public void EndConversation()
     {
         /* We can resume whatever we were doing before */
         AIState = prevState;
-        Debug.Log("ENDING CONVERSATION.");
     }
 
     void StartPathfinding(Cell endGoal)
