@@ -22,6 +22,7 @@ public class Player : MonoBehaviour
     private ActionState actionState;
     [SerializeField] GameObject PlayerText;
     [SerializeField] Transform PlayerGraphic;
+    [SerializeField] GameObject LanternObject;
 
     [Header("Prefabs")]
     public GameObject pf_Shovel;
@@ -29,6 +30,8 @@ public class Player : MonoBehaviour
     [Header("Sprites")]
     public Sprite Talk;
     public Sprite RockBreak;
+    public Sprite Lantern;
+
     private CameraController cameraController;
     private float conversation_halt = 3f;
     private float conv_counter = 0f;
@@ -39,13 +42,14 @@ public class Player : MonoBehaviour
         THINKING,
         TALKING,
         READING,
-        ROCK_BREAK
+        ROCK_BREAK,
     }
 
     public enum ActionState
     {
         TALK,
-        ROCKBREAK
+        ROCKBREAK,
+        LAMP
     }
 
 
@@ -130,11 +134,17 @@ public class Player : MonoBehaviour
                     tool.GetComponent<Image>().sprite = RockBreak;
                     actionState = ActionState.ROCKBREAK;
                 }
+                else if (actionState == ActionState.ROCKBREAK)
+                {
+                    tool.GetComponent<Image>().sprite = Lantern;
+                    LanternObject.SetActive(true);
+                    actionState = ActionState.LAMP;
+                }
                 else
                 {
                     tool.GetComponent<Image>().sprite = Talk;
+                    LanternObject.SetActive(false);
                     actionState = ActionState.TALK;
-
                 }
             }
             if (Input.GetKeyDown(KeyCode.Space))
