@@ -21,6 +21,8 @@ public class Player : MonoBehaviour
     private Task<string> genTask;
     private ActionState actionState;
     [SerializeField] GameObject PlayerText;
+    [SerializeField] Transform PlayerGraphic;
+
     [Header("Prefabs")]
     public GameObject pf_Shovel;
 
@@ -190,6 +192,7 @@ public class Player : MonoBehaviour
 
     void Movement()
     {
+        if (CameraController.transitioning) return; //can't move during a camera transition!
 
         float time = Time.deltaTime;
         Vector3 Direction = Vector3.zero;
@@ -220,6 +223,7 @@ public class Player : MonoBehaviour
         }
 
         transform.position += Direction.normalized * time * speed;
+        if(Direction.sqrMagnitude != 0) PlayerGraphic.rotation = Quaternion.LookRotation(Direction);
     }
 
     void InitTalk()

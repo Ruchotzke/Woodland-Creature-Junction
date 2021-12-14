@@ -58,7 +58,7 @@ public class TerrainMesh : MonoBehaviour
 
         for(int i = 0; i < Mathf.Min(numRocks, rockspots.Count); i++)
         {
-            Vector2Int spot = rockspots[Random.Range(0, spots.Count)];
+            Vector2Int spot = rockspots[Random.Range(0, rockspots.Count)];
             rockspots.Remove(spot);
             Cell chosen = map.GetCell(spot.x, spot.y);
             if(flag)

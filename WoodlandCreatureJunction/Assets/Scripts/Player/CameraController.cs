@@ -22,7 +22,7 @@ public class CameraController : MonoBehaviour
     Quaternion targetRotation;
     bool inConversation = false;
     float currTransitionTimer = 0.0f;
-    bool transitioning = false;
+    public static bool transitioning = false;
 
     private void Awake()
     {
